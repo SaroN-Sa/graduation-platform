@@ -24,3 +24,18 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+.gradient-hero {
+  background: linear-gradient(
+    135deg,
+    #0f0b1f,
+    #1a1333,
+    #2a1c45
+  );
+}
+.text-gold {
+  color: hsl(45, 93%, 58%);
+}
+
+.bg-gold {
+  background: hsl(45, 93%, 58%);
+}
