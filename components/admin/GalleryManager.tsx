@@ -1,7 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { supabase } from "@/lib/supabaseClient"
+import ImageUploader from "./ImageUploader"
+import ImageCard from "./ImageCard"
 
 interface Props {
   slug: string
@@ -9,47 +11,57 @@ interface Props {
 
 export default function GalleryManager({ slug }: Props) {
 
-  const [file, setFile] = useState<File | null>(null)
+  const [images, setImages] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
 
-  async function uploadImage() {
-    if (!file) return
+  async function loadImages() {
 
-    const filePath = `${slug}/${Date.now()}-${file.name}`
+    setLoading(true)
 
-    const { error } = await supabase.storage
-      .from("gallery-images")
-      .upload(filePath, file)
+    const { data, error } = await supabase
+      .from("gallery_images")
+      .select("*")
+      .eq("graduate_slug", slug)
+      .order("created_at", { ascending: false })
 
     if (error) {
-      alert("Upload failed")
+      console.error(error)
       return
     }
 
-    const imageUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/gallery-images/${filePath}`
-
-    await supabase.from("gallery").insert({
-      graduate_slug: slug,
-      image_url: imageUrl
-    })
-
-    alert("Image uploaded!")
+    setImages(data || [])
+    setLoading(false)
   }
 
+  useEffect(() => {
+    loadImages()
+  }, [])
+
   return (
-    <div className="bg-[#1a1333] p-6 rounded-xl">
-      <h2 className="text-xl font-semibold mb-4">Gallery Upload</h2>
+    <div className="mt-10">
 
-      <input
-        type="file"
-        onChange={(e) => setFile(e.target.files?.[0] || null)}
-      />
+      <h2 className="text-xl font-bold mb-6">
+        Gallery Manager
+      </h2>
 
-      <button
-        onClick={uploadImage}
-        className="mt-4 px-6 py-2 bg-yellow-400 text-black rounded-lg"
-      >
-        Upload
-      </button>
+      <ImageUploader slug={slug} onUploadComplete={loadImages} />
+
+      {loading && (
+        <p className="text-gray-400">Loading gallery...</p>
+      )}
+
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+
+        {images.map((img) => (
+          <ImageCard
+            key={img.id}
+            image={img}
+            refresh={loadImages}
+          />
+        ))}
+
+      </div>
+
     </div>
   )
 }
