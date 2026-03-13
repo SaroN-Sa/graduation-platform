@@ -4,6 +4,7 @@ import GallerySection from "@/components/GallerySection"
 import WishSection from "@/components/WishSection"
 import HighlightsSection from "@/components/HighlightsSection"
 import AchievementsSection from "@/components/AchievementsSection"
+import GraduateSpotlight from "@/components/GraduateSpotlight"
 
 interface GraduatePageProps {
   params: Promise<{ slug: string }>
@@ -29,8 +30,10 @@ export default async function GraduatePage({ params }: GraduatePageProps) {
         department={data.department}
         profileImage={data.profile_image}
       />
+       
+       <GraduateSpotlight graduate={data} />
 
-      <GallerySection />
+     <GallerySection slug={slug} />
 
       <WishSection />
 
