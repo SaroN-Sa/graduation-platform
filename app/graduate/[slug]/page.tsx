@@ -35,7 +35,7 @@ export default async function GraduatePage({ params }: GraduatePageProps) {
 
      <GallerySection slug={slug} />
 
-      <WishSection />
+      <WishSection slug={slug} />
 
       <HighlightsSection />
 
