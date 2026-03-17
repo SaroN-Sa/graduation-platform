@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef } from "react"
 
 interface Wish {
   id: string
@@ -18,129 +18,110 @@ interface Props {
 
 export default function WishViewer({ wishes, startIndex, onClose }: Props) {
 
-  const [index, setIndex] = useState(startIndex)
-  const touchStart = useRef<number | null>(null)
-
-  const wish = wishes[index]
-
-  function next() {
-    if (index < wishes.length - 1) {
-      setIndex(index + 1)
-    }
-  }
-
-  function prev() {
-    if (index > 0) {
-      setIndex(index - 1)
-    }
-  }
-
-  // Mouse wheel scroll
-  function handleWheel(e: WheelEvent) {
-    if (e.deltaY > 0) next()
-    else prev()
-  }
-
-  // Keyboard navigation
-  function handleKey(e: KeyboardEvent) {
-    if (e.key === "ArrowDown") next()
-    if (e.key === "ArrowUp") prev()
-    if (e.key === "Escape") onClose()
-  }
-
-  // Touch swipe
-  function handleTouchStart(e: React.TouchEvent) {
-    touchStart.current = e.touches[0].clientY
-  }
-
-  function handleTouchEnd(e: React.TouchEvent) {
-
-    if (touchStart.current === null) return
-
-    const diff = touchStart.current - e.changedTouches[0].clientY
-
-    if (diff > 50) next()
-    if (diff < -50) prev()
-
-    touchStart.current = null
-  }
+  const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-
-    window.addEventListener("wheel", handleWheel)
-    window.addEventListener("keydown", handleKey)
-
-    return () => {
-      window.removeEventListener("wheel", handleWheel)
-      window.removeEventListener("keydown", handleKey)
+    if (containerRef.current) {
+      containerRef.current.scrollTo({
+        top: startIndex * window.innerHeight,
+        behavior: "instant"
+      })
     }
-
-  })
+  }, [startIndex])
 
   return (
-    <div
-      className="fixed inset-0 bg-black z-50 flex items-center justify-center overflow-hidden"
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
-    >
 
-      {/* Close button */}
+    <div className="fixed inset-0 bg-black z-50">
+
+      {/* CLOSE */}
       <button
         onClick={onClose}
-        className="absolute top-6 right-6 text-white text-2xl z-50"
+        className="fixed top-4 right-4 text-white text-2xl z-50"
       >
         ✕
       </button>
 
-      {/* Slide container */}
-      <div className="relative w-full max-w-md h-[85vh] flex items-center justify-center">
+      {/* SCROLL */}
+      <div
+        ref={containerRef}
+        className="h-screen overflow-y-auto snap-y snap-mandatory scroll-smooth"
+      >
 
-        <div className="transition-all duration-500 w-full">
+        {wishes.map((wish) => (
 
-          {wish.video_url ? (
+          <div
+            key={wish.id}
+            className="h-screen snap-start flex items-center justify-center px-4"
+          >
 
-            <video
-              src={wish.video_url}
-              autoPlay
-              controls
-              className="w-full h-[65vh] object-contain rounded-xl"
-            />
+            <div className="w-full max-w-4xl">
 
-          ) : wish.photo_url ? (
+              {/* MEDIA */}
+              {wish.video_url ? (
 
-            <img
-              src={wish.photo_url}
-              className="w-full h-[65vh] object-contain rounded-xl"
-            />
+                <video
+                  ref={(el) => {
+                    if (!el) return
 
-          ) : (
+                    const observer = new IntersectionObserver(
+                      ([entry]) => {
+                        if (entry.isIntersecting) {
+                          el.play().catch(()=>{})
+                        } else {
+                          el.pause()
+                        }
+                      },
+                      { threshold: 0.6 }
+                    )
 
-            <div className="w-full h-[65vh] flex items-center justify-center bg-[#0f0b1f] rounded-xl text-white text-lg p-10 text-center">
-              {wish.message}
+                    observer.observe(el)
+                  }}
+                  src={wish.video_url}
+                  muted
+                  playsInline
+                  controls
+                  className="w-full max-h-[70vh] object-contain rounded-xl"
+                />
+
+              ) : wish.photo_url ? (
+
+                <img
+                  src={wish.photo_url}
+                  className="w-full max-h-[70vh] object-contain rounded-xl"
+                />
+
+              ) : (
+
+                <div className="w-full bg-[#0f0b1f] rounded-xl p-6 text-white text-center">
+                  {wish.message}
+                </div>
+
+              )}
+
+              {/* TEXT */}
+              <div className="text-center text-white mt-6">
+
+                <p className="font-semibold text-lg">
+                  {wish.name}
+                </p>
+
+                <p className="text-gray-300 mt-2">
+                  {wish.message}
+                </p>
+
+              </div>
+
             </div>
-
-          )}
-
-          {/* Caption */}
-          <div className="text-white mt-6 text-center px-4">
-
-            <p className="font-semibold text-lg">
-              {wish.name}
-            </p>
-
-            <p className="text-gray-300 mt-2">
-              {wish.message}
-            </p>
 
           </div>
 
-        </div>
+        ))}
 
       </div>
 
-      {/* navigation hint */}
-      <div className="absolute bottom-6 text-gray-400 text-sm">
-        Swipe ↑ ↓ or Scroll
+      {/* HINT */}
+      <div className="fixed bottom-4 w-full text-center text-gray-400 text-xs">
+        Swipe up / down
       </div>
 
     </div>

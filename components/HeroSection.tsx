@@ -14,6 +14,17 @@ export default function HeroSection({
   department,
   profileImage,
 }: Props) {
+
+  function scrollTo(id: string) {
+    const el = document.getElementById(id)
+    if (!el) return
+
+    el.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    })
+  }
+
   return (
     <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0f0b1f] via-[#1a1333] to-[#2a1c45] text-white overflow-hidden">
 
@@ -62,14 +73,20 @@ export default function HeroSection({
         </div>
 
         {/* buttons */}
-        <div className="flex flex-col sm:flex-row gap-4">
+        <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
 
-          <button className="rounded-full bg-yellow-400 text-black px-8 py-3 font-semibold flex items-center justify-center hover:scale-105 transition">
+          <button
+            onClick={() => scrollTo("wishes")}
+            className="w-full sm:w-auto rounded-full bg-yellow-400 text-black px-8 py-3 font-semibold flex items-center justify-center hover:scale-105 transition"
+          >
             <Sparkles className="w-5 h-5 mr-2" />
             Leave a Wish
           </button>
 
-          <button className="rounded-full border border-[#2e2557] px-8 py-3 font-semibold flex items-center justify-center hover:bg-[#1a1333] transition">
+          <button
+            onClick={() => scrollTo("gallery")}
+            className="w-full sm:w-auto rounded-full border border-[#2e2557] px-8 py-3 font-semibold flex items-center justify-center hover:bg-[#1a1333] transition"
+          >
             <ImageIcon className="w-5 h-5 mr-2" />
             View Gallery
           </button>
