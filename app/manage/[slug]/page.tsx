@@ -15,7 +15,7 @@ export default async function ManagePage({ params, searchParams }: Props) {
   const { slug } = await params
   const { token } = await searchParams
 
-  // Security check
+  // 🔒 Security check
   if (!token) {
     return (
       <p className="text-center mt-20 text-white">
@@ -40,13 +40,13 @@ export default async function ManagePage({ params, searchParams }: Props) {
   }
 
   return (
-    <div className="min-h-screen bg-[#0f0b1f] text-white p-10">
+    <div className="min-h-screen bg-[#0f0b1f] text-white p-4 md:p-10">
 
-      {/* Header */}
-      <AdminHeader name={data.name} />
+      {/* ✅ FIXED: removed name prop */}
+      <AdminHeader />
 
-      {/* Profile + Gallery */}
-      <div className="grid md:grid-cols-2 gap-8 mt-10">
+      {/* PROFILE + GALLERY */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-10">
 
         <ProfileManager graduate={data} />
 
@@ -54,10 +54,10 @@ export default async function ManagePage({ params, searchParams }: Props) {
 
       </div>
 
-      {/* Education Journey Manager */}
+      {/* EDUCATION JOURNEY */}
       <div className="mt-16">
 
-        <h2 className="text-2xl font-bold mb-6">
+        <h2 className="text-xl md:text-2xl font-bold mb-6">
           🎓 Manage Education Journey
         </h2>
 
@@ -65,10 +65,10 @@ export default async function ManagePage({ params, searchParams }: Props) {
 
       </div>
 
-      {/* Wishes Manager */}
+      {/* WISHES */}
       <div className="mt-16">
 
-        <h2 className="text-2xl font-bold mb-6">
+        <h2 className="text-xl md:text-2xl font-bold mb-6">
           💌 Manage Wishes
         </h2>
 
