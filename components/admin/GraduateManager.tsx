@@ -94,8 +94,8 @@ export default function GraduateManager() {
       return
     }
 
-    const publicLink = `http://localhost:3000/graduate/${slug}`
-    const adminLink = `http://localhost:3000/manage/${slug}?token=${token}`
+    const publicLink = `http://graduation-platform-lemon.vercel.app/graduate/${slug}`
+    const adminLink = `http://graduation-platform-lemon.vercel.app/manage/${slug}?token=${token}`
 
     setLinks({ publicLink, adminLink })
 
