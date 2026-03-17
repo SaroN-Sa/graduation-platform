@@ -21,12 +21,21 @@ interface Props {
 }
 
 export default function WishDashboard({ slug }: Props) {
+
   const [wishes, setWishes] = useState<Wish[]>([])
   const [search, setSearch] = useState("")
-  const [filter, setFilter] = useState("all")
+  const [filter, setFilter] = useState("")
   const [viewerIndex, setViewerIndex] = useState<number | null>(null)
 
+  const [message, setMessage] = useState<string | null>(null)
+
+  function notify(text: string) {
+    setMessage(text)
+    setTimeout(() => setMessage(null), 3000)
+  }
+
   async function loadWishes() {
+
     let query = supabase
       .from("wishes")
       .select("*")
@@ -52,7 +61,7 @@ export default function WishDashboard({ slug }: Props) {
     const { data, error } = await query
 
     if (error) {
-      console.error(error)
+      notify("Failed to load wishes")
       return
     }
 
@@ -61,35 +70,70 @@ export default function WishDashboard({ slug }: Props) {
 
   useEffect(() => {
     loadWishes()
-  }, [search, filter])
+  }, [search, filter, slug])
 
   return (
-    <div>
 
+    <div className="px-4">
+
+      {/* Notification */}
+      {message && (
+        <div className="mb-4 text-sm text-green-400 text-center">
+          {message}
+        </div>
+      )}
+
+      {/* Controls */}
       <div className="flex flex-col md:flex-row gap-4 mb-6">
-        <WishSearch value={search} onChange={setSearch} />
-        <WishFilters value={filter} onChange={setFilter} />
-      </div>
 
-      <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <WishSearch
+          value={search}
+          onChange={setSearch}
+        />
 
-        {wishes.map((wish, i) => (
-          <WishCardAdmin
-            key={wish.id}
-            wish={wish}
-            onOpen={() => setViewerIndex(i)}
-            onRefresh={loadWishes}
-          />
-        ))}
+        <WishFilters
+          value={filter}
+          onChange={setFilter}
+        />
 
       </div>
 
+      {/* Empty State */}
+      {wishes.length === 0 && (
+        <p className="text-gray-400">
+          No wishes found
+        </p>
+      )}
+
+      {/* Grid */}
+      {wishes.length > 0 && (
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+
+          {wishes.map((wish, i) => (
+
+            <WishCardAdmin
+              key={wish.id}
+              wish={wish}
+              onOpen={() => setViewerIndex(i)}
+              onRefresh={loadWishes}
+            />
+
+          ))}
+
+        </div>
+
+      )}
+
+      {/* Viewer */}
       {viewerIndex !== null && (
+
         <WishViewer
           wishes={wishes}
           startIndex={viewerIndex}
           onClose={() => setViewerIndex(null)}
         />
+
       )}
 
     </div>

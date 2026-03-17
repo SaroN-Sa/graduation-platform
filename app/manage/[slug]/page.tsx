@@ -1,8 +1,9 @@
 import { supabase } from "@/lib/supabaseClient"
-import DashboardHeader from "@/components/admin/DashboardHeader"
+import AdminHeader from "@/components/admin/AdminHeader"
 import ProfileManager from "@/components/admin/ProfileManager"
 import GalleryManager from "@/components/admin/GalleryManager"
 import WishDashboard from "@/components/admin/WishDashboard"
+import JourneyManager from "@/components/admin/JourneyManager"
 
 interface Props {
   params: Promise<{ slug: string }>
@@ -42,7 +43,7 @@ export default async function ManagePage({ params, searchParams }: Props) {
     <div className="min-h-screen bg-[#0f0b1f] text-white p-10">
 
       {/* Header */}
-      <DashboardHeader name={data.name} />
+      <AdminHeader name={data.name} />
 
       {/* Profile + Gallery */}
       <div className="grid md:grid-cols-2 gap-8 mt-10">
@@ -50,6 +51,17 @@ export default async function ManagePage({ params, searchParams }: Props) {
         <ProfileManager graduate={data} />
 
         <GalleryManager slug={slug} />
+
+      </div>
+
+      {/* Education Journey Manager */}
+      <div className="mt-16">
+
+        <h2 className="text-2xl font-bold mb-6">
+          🎓 Manage Education Journey
+        </h2>
+
+        <JourneyManager slug={slug} />
 
       </div>
 

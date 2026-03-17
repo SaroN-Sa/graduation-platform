@@ -10,10 +10,14 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.99.1",
+    "canvas-confetti": "^1.9.4",
+    "framer-motion": "^12.37.0",
     "lucide-react": "^0.577.0",
     "next": "16.1.6",
+    "next-cloudinary": "^6.17.5",
     "react": "19.2.3",
     "react-dom": "19.2.3",
+    "react-intersection-observer": "^10.0.3",
     "yet-another-react-lightbox": "^3.29.1"
   },
   "devDependencies": {
