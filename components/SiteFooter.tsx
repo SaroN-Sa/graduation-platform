@@ -11,7 +11,7 @@ export default function SiteFooter() {
         </p>
 
         <p>
-          Developed with ❤️ by{" "}
+          Developed by{" "}
           <span className="text-yellow-400 font-semibold">
             Saron Samuel
           </span>

@@ -38,11 +38,6 @@ export default async function GraduatePage({ params }: GraduatePageProps) {
         profileImage={data.profile_image}
       />
 
-      {/* 🎓 EDUCATION */}
-      <section id="education" className="scroll-mt-24">
-        <EducationTimeline journey={journey || []} />
-      </section>
-
       {/* 📸 GALLERY */}
       <section id="gallery" className="scroll-mt-24">
         <GallerySection slug={slug} />
@@ -52,6 +47,13 @@ export default async function GraduatePage({ params }: GraduatePageProps) {
       <section id="wishes" className="scroll-mt-24">
         <WishSection slug={slug} />
       </section>
+
+      
+      {/* 🎓 EDUCATION */}
+      <section id="education" className="scroll-mt-24">
+        <EducationTimeline journey={journey || []} />
+      </section>
+
 
       {/* 🎉 CELEBRATION */}
       <section id="celebration" className="scroll-mt-24">
