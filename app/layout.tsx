@@ -23,6 +23,7 @@ export const metadata: Metadata = {
   title: "Gradify 🎓 | Celebrate Your Graduation",
   description:
     "Create your graduation profile, upload memories, and celebrate your academic journey with Gradify.",
+  keywords: ["graduation", "celebration", "students", "memories"],
     
 };
 
