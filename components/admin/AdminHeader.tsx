@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabaseClient"
 
 import {
@@ -10,16 +10,20 @@ import {
   Star,
   Image,
   MessageCircle,
-  Video
+  Video,
+  LogOut
 } from "lucide-react"
 
 export default function AdminHeader() {
 
   const params = useParams()
+  const router = useRouter()
   const slug = params.slug as string
 
   const [graduate, setGraduate] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  const [openMenu, setOpenMenu] = useState(false)
+  const [notification, setNotification] = useState<any>(null)
 
   const [stats, setStats] = useState({
     images: 0,
@@ -27,6 +31,11 @@ export default function AdminHeader() {
     videos: 0,
     featured: 0
   })
+
+  function notify(text: string) {
+    setNotification(text)
+    setTimeout(() => setNotification(null), 3000)
+  }
 
   useEffect(() => {
 
@@ -64,11 +73,12 @@ export default function AdminHeader() {
         .select("*", { count: "exact", head: true })
         .eq("graduate_slug", slug)
 
-      /* VIDEOS */
+      /* VIDEOS (FROM WISHES TABLE) */
       const { count: videos } = await supabase
-        .from("videos")
+        .from("wishes")
         .select("*", { count: "exact", head: true })
         .eq("graduate_slug", slug)
+        .not("video_url", "is", null)
 
       setStats({
         images: images || 0,
@@ -84,65 +94,100 @@ export default function AdminHeader() {
 
   }, [slug])
 
+  function logout() {
+
+    localStorage.removeItem("grad_session")
+
+    notify("Logged out successfully")
+
+    setTimeout(() => {
+      router.push("/admin")
+    }, 1000)
+  }
+
   return (
-    <div className="w-full mb-12">
+    <div className="w-full mb-12 relative">
+
+      {/* Notification */}
+      {notification && (
+        <div className="fixed top-6 right-6 bg-red-500 px-4 py-2 rounded-lg text-white shadow-lg z-50">
+          {notification}
+        </div>
+      )}
 
       {/* HEADER */}
+      <div className="flex items-center justify-between gap-3 mb-6">
 
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-
-        <h1 className="text-xl md:text-2xl font-bold text-white flex items-center gap-3">
+        {/* NAME */}
+        <h1 className="text-sm md:text-2xl font-bold text-white flex items-center gap-2 truncate">
           🎓 {loading ? "Loading..." : graduate?.name}
         </h1>
 
-        <div className="flex items-center gap-4">
+        {/* ACTIONS */}
+        <div className="flex items-center gap-2">
 
           <Link
             href={`/graduate/${slug}`}
             className="
-            px-4 py-2
+            px-3 md:px-4 py-1.5 md:py-2
             border border-orange-400
             text-orange-400
             rounded-lg
             hover:bg-orange-400 hover:text-black
             transition
-            text-sm md:text-base
+            text-xs md:text-base
+            whitespace-nowrap
             "
           >
             View Page
           </Link>
 
-          {/* ACCOUNT */}
+          {/* PROFILE MENU */}
+          <div className="relative">
 
-          <div className="relative group">
-
-            <div className="flex items-center gap-2 cursor-pointer">
-
+            <div
+              onClick={() => setOpenMenu(!openMenu)}
+              className="flex items-center cursor-pointer"
+            >
               {graduate?.profile_image ? (
                 <img
                   src={graduate.profile_image}
-                  className="w-9 h-9 rounded-full object-cover"
+                  className="w-8 h-8 md:w-9 md:h-9 rounded-full object-cover hover:ring-2 hover:ring-orange-400 transition"
                 />
               ) : (
                 <User size={20} className="text-gray-400" />
               )}
-
             </div>
 
-            <div
-              className="
-              absolute right-0 mt-2
-              w-40
-              bg-[#14102a]
-              border border-[#2a2f45]
-              rounded-lg
-              shadow-lg
-              opacity-0
-              group-hover:opacity-100
-              transition
-              "
-            >
-            </div>
+            {/* DROPDOWN */}
+            {openMenu && (
+              <div className="
+                absolute right-0 mt-3
+                bg-[#14102a]
+                border border-[#2a2f45]
+                rounded-lg
+                shadow-xl
+                w-40
+                overflow-hidden
+              ">
+
+                <button
+                  onClick={logout}
+                  className="
+                  flex items-center gap-2
+                  w-full px-4 py-3
+                  text-left
+                  text-red-400
+                  hover:bg-[#1d1836]
+                  transition
+                  "
+                >
+                  <LogOut size={16} />
+                  Logout
+                </button>
+
+              </div>
+            )}
 
           </div>
 
@@ -151,7 +196,6 @@ export default function AdminHeader() {
       </div>
 
       {/* DASHBOARD STATS */}
-
       <div className="flex flex-wrap justify-center gap-4 md:gap-6 mb-10">
 
         <Stat icon={Image} value={stats.images} label="Images" loading={loading} />
@@ -165,7 +209,7 @@ export default function AdminHeader() {
   )
 }
 
-/* SMALL STAT COMPONENT */
+/* STAT COMPONENT */
 
 function Stat({ icon: Icon, value, label, loading }: any) {
 

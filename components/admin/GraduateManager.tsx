@@ -11,7 +11,7 @@ export default function GraduateManager() {
   const [bio, setBio] = useState("")
   const [loading, setLoading] = useState(false)
 
-  const [links, setLinks] = useState<any>(null)
+  const [accessInfo, setAccessInfo] = useState<any>(null)
 
   const [notification, setNotification] = useState<any>(null)
   const [deleteTarget, setDeleteTarget] = useState<any>(null)
@@ -94,10 +94,10 @@ export default function GraduateManager() {
       return
     }
 
-    const publicLink = `http://graduation-platform-lemon.vercel.app/graduate/${slug}`
-    const adminLink = `http://graduation-platform-lemon.vercel.app/manage/${slug}?token=${token}`
-
-    setLinks({ publicLink, adminLink })
+    setAccessInfo({
+      slug,
+      token
+    })
 
     notify("success", "Graduate created successfully")
 
@@ -133,7 +133,7 @@ export default function GraduateManager() {
 
   function copy(text: string) {
     navigator.clipboard.writeText(text)
-    notify("success", "Link copied")
+    notify("success", "Copied")
   }
 
   return (
@@ -141,26 +141,20 @@ export default function GraduateManager() {
     <div className="max-w-5xl mx-auto px-4 py-10 text-white">
 
       {/* Notification */}
-
       {notification && (
-
         <div className={`
           fixed top-6 right-6 px-4 py-3 rounded-lg shadow-lg z-50
           ${notification.type === "success" && "bg-green-500"}
           ${notification.type === "error" && "bg-red-500"}
-          ${notification.type === "warning" && "bg-yellow-500 text-black"}
+          ${notification.type === "warning" && "bg-yellow-400 text-black"}
         `}>
           {notification.text}
         </div>
-
       )}
 
-      {/* DELETE CONFIRM MODAL */}
-
+      {/* Delete Modal */}
       {deleteTarget && (
-
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-
           <div className="bg-[#14102a] border border-[#2a2f45] p-6 rounded-xl w-[90%] max-w-md">
 
             <h3 className="text-lg font-bold mb-4">
@@ -172,7 +166,6 @@ export default function GraduateManager() {
             </p>
 
             <div className="flex gap-3">
-
               <button
                 onClick={confirmDelete}
                 className="bg-red-500 px-4 py-2 rounded"
@@ -186,17 +179,13 @@ export default function GraduateManager() {
               >
                 Cancel
               </button>
-
             </div>
 
           </div>
-
         </div>
-
       )}
 
-      {/* CREATE GRADUATE */}
-
+      {/* Create Graduate */}
       <div className="bg-[#14102a] border border-[#2a2f45] p-6 rounded-xl mb-10">
 
         <h2 className="text-xl font-bold mb-6">
@@ -239,32 +228,31 @@ export default function GraduateManager() {
 
       </div>
 
-      {/* GENERATED LINKS */}
-
-      {links && (
-
+      {/* Access Info */}
+      {accessInfo && (
         <div className="bg-[#14102a] border border-[#2a2f45] p-6 rounded-xl mb-10">
 
           <h3 className="text-yellow-400 font-semibold mb-6">
-            Graduate Created
+            Access Information
           </h3>
 
+          {/* Slug */}
           <div className="mb-6">
 
             <p className="text-gray-400 mb-2">
-              Public Page
+              Graduate Slug
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3">
 
               <input
                 readOnly
-                value={links.publicLink}
+                value={accessInfo.slug}
                 className="flex-1 p-2 bg-black rounded"
               />
 
               <button
-                onClick={()=>copy(links.publicLink)}
+                onClick={()=>copy(accessInfo.slug)}
                 className="bg-blue-500 px-4 py-2 rounded"
               >
                 Copy
@@ -274,22 +262,23 @@ export default function GraduateManager() {
 
           </div>
 
+          {/* Token */}
           <div>
 
             <p className="text-gray-400 mb-2">
-              Graduate Admin Link
+              Admin Token
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3">
 
               <input
                 readOnly
-                value={links.adminLink}
+                value={accessInfo.token}
                 className="flex-1 p-2 bg-black rounded"
               />
 
               <button
-                onClick={()=>copy(links.adminLink)}
+                onClick={()=>copy(accessInfo.token)}
                 className="bg-green-500 px-4 py-2 rounded"
               >
                 Copy
@@ -300,11 +289,9 @@ export default function GraduateManager() {
           </div>
 
         </div>
-
       )}
 
-      {/* ALL GRADUATES */}
-
+      {/* Graduates List */}
       <h2 className="text-xl font-bold mb-6">
         All Graduates
       </h2>
@@ -335,7 +322,7 @@ export default function GraduateManager() {
               )}
 
               <p className="text-gray-500 text-xs mt-1">
-                /graduates/{g.slug}
+                slug: {g.slug}
               </p>
 
             </div>
@@ -351,7 +338,7 @@ export default function GraduateManager() {
               </a>
 
               <a
-                href={`/manage/${g.slug}?token=${g.token}`}
+                href={`/admin?slug=${g.slug}&token=${g.token}`}
                 target="_blank"
                 className="bg-green-500 px-3 py-1 rounded text-sm"
               >
