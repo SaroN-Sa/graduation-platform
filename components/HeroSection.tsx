@@ -63,20 +63,25 @@ export default function HeroSection({
           and share in this special moment.
         </p>
 
-        {/* bio */}
+        {/* bio with visible lines */}
         {bio && (
-          <div className="flex items-center w-full max-w-xl mb-8 md:mb-10 gap-2 sm:gap-3">
-            <div className="flex-1 h-[2px] bg-white/40" />
+          <div className="flex items-center w-full max-w-xl mb-8 md:mb-10 gap-3">
 
+            {/* left line */}
+            <div className="flex-1 h-[2px] bg-gradient-to-r from-transparent via-yellow-400 to-transparent opacity-80" />
+
+            {/* bio text */}
             <p className="text-yellow-400 text-xs sm:text-sm md:text-base text-center px-2 break-words">
               ✨ {bio} ✨
             </p>
 
-            <div className="flex-1 h-[2px] bg-white/40" />
+            {/* right line */}
+            <div className="flex-1 h-[2px] bg-gradient-to-r from-transparent via-yellow-400 to-transparent opacity-80" />
+
           </div>
         )}
 
-        {/* image */}
+        {/* profile image */}
         {profileImage && (
           <div className="mb-6 md:mb-8">
             <div className="w-32 h-32 sm:w-40 sm:h-40 md:w-48 md:h-48 rounded-full p-1 bg-gradient-to-br from-yellow-400 to-yellow-300">
