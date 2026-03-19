@@ -37,60 +37,74 @@ export default function AdminHeader() {
     setTimeout(() => setNotification(null), 3000)
   }
 
+  async function loadData() {
+
+    if (!slug) return
+
+    /* GRADUATE */
+    const { data } = await supabase
+      .from("graduates")
+      .select("*")
+      .eq("slug", slug)
+      .single()
+
+    if (data) setGraduate(data)
+
+    /* IMAGES */
+    const { count: images } = await supabase
+      .from("gallery_images")
+      .select("*", { count: "exact", head: true })
+      .eq("graduate_slug", slug)
+
+    /* FEATURED */
+    const { count: featured } = await supabase
+      .from("gallery_images")
+      .select("*", { count: "exact", head: true })
+      .eq("graduate_slug", slug)
+      .eq("featured", true)
+
+    /* WISHES */
+    const { count: wishes } = await supabase
+      .from("wishes")
+      .select("*", { count: "exact", head: true })
+      .eq("graduate_slug", slug)
+
+    /* VIDEOS (FROM WISHES TABLE) */
+    const { count: videos } = await supabase
+      .from("wishes")
+      .select("*", { count: "exact", head: true })
+      .eq("graduate_slug", slug)
+      .not("video_url", "is", null)
+
+    setStats({
+      images: images || 0,
+      featured: featured || 0,
+      wishes: wishes || 0,
+      videos: videos || 0
+    })
+
+    setLoading(false)
+  }
+
   useEffect(() => {
 
-    async function loadData() {
+    let interval: any
 
-      if (!slug) return
-
+    async function start() {
       setLoading(true)
+      await loadData()
 
-      /* GRADUATE */
-      const { data } = await supabase
-        .from("graduates")
-        .select("*")
-        .eq("slug", slug)
-        .single()
-
-      if (data) setGraduate(data)
-
-      /* IMAGES */
-      const { count: images } = await supabase
-        .from("gallery_images")
-        .select("*", { count: "exact", head: true })
-        .eq("graduate_slug", slug)
-
-      /* FEATURED */
-      const { count: featured } = await supabase
-        .from("gallery_images")
-        .select("*", { count: "exact", head: true })
-        .eq("graduate_slug", slug)
-        .eq("featured", true)
-
-      /* WISHES */
-      const { count: wishes } = await supabase
-        .from("wishes")
-        .select("*", { count: "exact", head: true })
-        .eq("graduate_slug", slug)
-
-      /* VIDEOS (FROM WISHES TABLE) */
-      const { count: videos } = await supabase
-        .from("wishes")
-        .select("*", { count: "exact", head: true })
-        .eq("graduate_slug", slug)
-        .not("video_url", "is", null)
-
-      setStats({
-        images: images || 0,
-        featured: featured || 0,
-        wishes: wishes || 0,
-        videos: videos || 0
-      })
-
-      setLoading(false)
+      // 🔄 AUTO REFRESH EVERY 5 SECONDS
+      interval = setInterval(() => {
+        loadData()
+      }, 5000)
     }
 
-    loadData()
+    start()
+
+    return () => {
+      if (interval) clearInterval(interval)
+    }
 
   }, [slug])
 
@@ -161,7 +175,8 @@ export default function AdminHeader() {
 
             {/* DROPDOWN */}
             {openMenu && (
-              <div className="
+              <div
+                className="
                 absolute right-0 mt-3
                 bg-[#14102a]
                 border border-[#2a2f45]
@@ -169,7 +184,8 @@ export default function AdminHeader() {
                 shadow-xl
                 w-40
                 overflow-hidden
-              ">
+              "
+              >
 
                 <button
                   onClick={logout}

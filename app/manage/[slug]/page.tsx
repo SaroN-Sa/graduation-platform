@@ -7,6 +7,7 @@ import ProfileManager from "@/components/admin/ProfileManager"
 import GalleryManager from "@/components/admin/GalleryManager"
 import WishDashboard from "@/components/admin/WishDashboard"
 import JourneyManager from "@/components/admin/JourneyManager"
+import AutoRefresh from "@/components/AutoRefresh"
 
 interface Props {
   params: Promise<{ slug: string }>
@@ -81,6 +82,9 @@ export default async function ManagePage({ params, searchParams }: Props) {
 
   return (
     <div className="min-h-screen bg-[#0f0b1f] text-white p-4 md:p-10">
+
+      {/* AUTO REFRESH */}
+      <AutoRefresh />
 
       <AdminHeader />
 

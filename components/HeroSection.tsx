@@ -5,14 +5,20 @@ import { GraduationCap, Sparkles, Image as ImageIcon } from "lucide-react"
 
 interface Props {
   name: string
-  department: string
-  profileImage: string
+  department?: string
+  profileImage?: string
+  bio?: string
+  university?: string
+  year?: string
 }
 
 export default function HeroSection({
   name,
   department,
   profileImage,
+  bio,
+  university,
+  year
 }: Props) {
 
   function scrollTo(id: string) {
@@ -43,11 +49,36 @@ export default function HeroSection({
           <span className="text-yellow-400">{name}</span>!
         </h1>
 
+        {/* university + year */}
+        {(university || year) && (
+          <p className="text-gray-400 text-sm md:text-base mb-3">
+            {university} {year && `• Class of ${year}`}
+          </p>
+        )}
+
         {/* subtitle */}
-        <p className="text-gray-300 text-base sm:text-lg md:text-xl max-w-xl leading-relaxed mb-10">
+        <p className="text-gray-300 text-base sm:text-lg md:text-xl max-w-xl leading-relaxed mb-6">
           Celebrate the achievements of our amazing graduate. Leave your wishes
           and share in this special moment.
         </p>
+
+        {/* bio */}
+      {bio && (
+        <div className="flex items-center w-full max-w-2xl mb-10 gap-3">
+
+      {/* left line */}
+      <div className="flex-1 h-[2px] bg-white" />
+
+      {/* bio */}
+      <p className="text-yellow-400 text-sm md:text-base text-center px-2 whitespace-nowrap">
+      ✨ {bio} ✨ 
+      </p>
+
+      {/* right line */}
+      <div className="flex-1 h-[2px] bg-white" />
+
+   </div>
+   )}
 
         {/* image */}
         {profileImage && (
@@ -65,12 +96,14 @@ export default function HeroSection({
         )}
 
         {/* department */}
-        <div className="mb-10">
-          <span className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-[#1f1a3a] text-gray-200 text-sm border border-[#2e2557]">
-            <GraduationCap className="w-4 h-4 text-yellow-400" />
-            {department}
-          </span>
-        </div>
+        {department && (
+          <div className="mb-10">
+            <span className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-[#1f1a3a] text-gray-200 text-sm border border-[#2e2557]">
+              <GraduationCap className="w-4 h-4 text-yellow-400" />
+              {department}
+            </span>
+          </div>
+        )}
 
         {/* buttons */}
         <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
