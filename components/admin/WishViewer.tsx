@@ -120,7 +120,7 @@ export default function WishViewer({ wishes, startIndex, onClose }: Props) {
       </div>
 
       {/* HINT */}
-      <div className="fixed bottom-4 w-full text-center text-gray-400 text-xs">
+      <div className="fixed bottom-6 w-full text-right text-gray-400 text-xs">
         Swipe up / down
       </div>
 
