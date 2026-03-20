@@ -42,9 +42,9 @@ export default function AdminAccessPage() {
   return (
     <div className="min-h-screen bg-[#0f0b1f] flex items-center justify-center text-white px-6 relative">
 
-      {/* HOME BUTTON */}
+      {/* BACK BUTTON */}
       <button
-        onClick={() => router.push("/")}
+        onClick={() => router.back()}
         className="
         absolute
         top-6
@@ -58,7 +58,7 @@ export default function AdminAccessPage() {
         text-sm
         "
       >
-        ← Home
+        ← Back
       </button>
 
       <div className="w-full max-w-md">
