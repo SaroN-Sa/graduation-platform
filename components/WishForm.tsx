@@ -29,7 +29,7 @@ export default function WishForm({ slug }: Props) {
       videoEl.src = url
       videoEl.onloadedmetadata = () => {
         URL.revokeObjectURL(url)
-        resolve(videoEl.duration) // duration in seconds
+        resolve(videoEl.duration)
       }
       videoEl.onerror = () => reject("Cannot read video duration")
     })
@@ -41,6 +41,12 @@ export default function WishForm({ slug }: Props) {
 
     if (!name) {
       setNotification({ message: "Please enter your name", type: "error" })
+      return
+    }
+
+    // ✅ VIDEO REQUIRED
+    if (!video) {
+      setNotification({ message: "Please upload a congratulation video 🎥", type: "error" })
       return
     }
 
@@ -67,28 +73,29 @@ export default function WishForm({ slug }: Props) {
         }
       }
 
-      /* VIDEO UPLOAD → CLOUDINARY ONLY */
-      if (video) {
-        // Check size
-        if (video.size > MAX_VIDEO_SIZE) {
-          setNotification({ message: "Video is too large. Max 300MB.", type: "error" })
-          setLoading(false)
-          return
-        }
-
-        // Check duration
-        const duration = await checkVideoDuration(video)
-        if (duration < MIN_DURATION || duration > MAX_DURATION) {
-          setNotification({ message: `Video must be between ${MIN_DURATION}s and ${MAX_DURATION}s.`, type: "error" })
-          setLoading(false)
-          return
-        }
-
-        // Upload to Cloudinary
-        video_url = await uploadVideoToCloudinary(video)
+      /* VIDEO UPLOAD → CLOUDINARY */
+      // Size check
+      if (video.size > MAX_VIDEO_SIZE) {
+        setNotification({ message: "Video is too large. Max 300MB.", type: "error" })
+        setLoading(false)
+        return
       }
 
-      /* SAVE WISH DATA IN SUPABASE */
+      // Duration check
+      const duration = await checkVideoDuration(video)
+      if (duration < MIN_DURATION || duration > MAX_DURATION) {
+        setNotification({
+          message: `Video must be between ${MIN_DURATION}s and ${MAX_DURATION}s.`,
+          type: "error"
+        })
+        setLoading(false)
+        return
+      }
+
+      // Upload video
+      video_url = await uploadVideoToCloudinary(video)
+
+      /* SAVE WISH DATA */
       const { error } = await supabase
         .from("wishes")
         .insert({
@@ -110,7 +117,11 @@ export default function WishForm({ slug }: Props) {
       setMessage("")
       setPhoto(null)
       setVideo(null)
-      setNotification({ message: "Wish sent 🎉", type: "success" })
+
+      setNotification({
+        message: "Wish with video sent successfully 🎉",
+        type: "success"
+      })
 
     } catch (err: any) {
       setNotification({ message: "Upload failed: " + err, type: "error" })
@@ -146,7 +157,7 @@ export default function WishForm({ slug }: Props) {
         {/* PHOTO */}
         <label className="border border-dashed border-gray-500 rounded-lg p-6 text-center cursor-pointer hover:border-yellow-400 transition">
           <div className="text-3xl mb-2">📷</div>
-          <p className="font-semibold">Upload Photo</p>
+          <p className="font-semibold">Upload Photo (Optional)</p>
           <p className="text-sm text-gray-400">PNG, JPG</p>
           <input
             type="file"
@@ -157,11 +168,11 @@ export default function WishForm({ slug }: Props) {
           {photo && <p className="text-xs mt-2 text-green-400">{photo.name}</p>}
         </label>
 
-        {/* VIDEO */}
-        <label className="border border-dashed border-gray-500 rounded-lg p-6 text-center cursor-pointer hover:border-yellow-400 transition">
+        {/* VIDEO (REQUIRED) */}
+        <label className="border border-dashed border-yellow-400 rounded-lg p-6 text-center cursor-pointer hover:scale-105 transition">
           <div className="text-3xl mb-2">🎥</div>
-          <p className="font-semibold">Upload Video</p>
-          <p className="text-sm text-gray-400">MP4, MOV</p>
+          <p className="font-semibold">Upload Video *</p>
+          <p className="text-sm text-gray-400">MP4, MOV • Required</p>
           <input
             type="file"
             accept="video/*"
@@ -181,7 +192,7 @@ export default function WishForm({ slug }: Props) {
         {loading ? "Sending..." : "Send Wish"}
       </button>
 
-      {/* Inline notification */}
+      {/* Notification */}
       {notification && (
         <p
           className={`mt-2 text-center font-semibold ${
