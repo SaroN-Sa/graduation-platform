@@ -40,7 +40,26 @@ export default function AdminAccessPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0f0b1f] flex items-center justify-center text-white px-6">
+    <div className="min-h-screen bg-[#0f0b1f] flex items-center justify-center text-white px-6 relative">
+
+      {/* HOME BUTTON */}
+      <button
+        onClick={() => router.push("/")}
+        className="
+        absolute
+        top-6
+        left-6
+        bg-[#14102a]
+        border border-[#2a2f45]
+        px-4 py-2
+        rounded-lg
+        hover:border-orange-400
+        transition
+        text-sm
+        "
+      >
+        ← Home
+      </button>
 
       <div className="w-full max-w-md">
 
