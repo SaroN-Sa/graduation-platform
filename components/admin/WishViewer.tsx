@@ -77,7 +77,7 @@ export default function WishViewer({ wishes, startIndex, onClose }: Props) {
                     observer.observe(el)
                   }}
                   src={wish.video_url}
-                  muted
+                  
                   playsInline
                   controls
                   className="w-full max-h-[70vh] object-contain rounded-xl"
