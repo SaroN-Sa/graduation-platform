@@ -1,146 +1,123 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Lightbox from "yet-another-react-lightbox"
 import "yet-another-react-lightbox/styles.css"
 import { supabase } from "@/lib/supabaseClient"
 
-interface Props {
-  image: any
-  images?: any[]
-  index?: number
-  refresh: () => void
+interface ImageType {
+  id: string
+  image_url: string
+  caption?: string
 }
 
-export default function ImageCard({ image, images = [], index = 0, refresh }: Props) {
+interface Props {
+  slug: string
+}
 
-  const [caption, setCaption] = useState(image.caption || "")
-  const [notification, setNotification] = useState("")
-  const [confirmDelete, setConfirmDelete] = useState(false)
-  const [previewIndex, setPreviewIndex] = useState(-1)
+export default function GallerySection({ slug }: Props) {
 
-  function notify(text: string) {
-    setNotification(text)
-    setTimeout(() => setNotification(""), 3000)
+  const [images, setImages] = useState<ImageType[]>([])
+  const [index, setIndex] = useState(-1)
+  const [loading, setLoading] = useState(true)
+
+  async function loadImages() {
+
+    const { data, error } = await supabase
+      .from("gallery_images")
+      .select("*")
+      .eq("graduate_slug", slug) // fetch only this graduate
+      .eq("featured", true)      // optional: only featured
+      .order("created_at", { ascending: false })
+
+    if (error) {
+      console.error("Gallery error:", error.message)
+      setLoading(false)
+      return
+    }
+
+    setImages(data || [])
+    setLoading(false)
   }
 
-  async function updateCaption() {
-    const { error } = await supabase
-      .from("gallery_images")
-      .update({ caption })
-      .eq("id", image.id)
+  useEffect(() => {
+    if (slug) {
+      loadImages()
+    }
+  }, [slug])
 
-    if (error) return notify("Failed")
-    notify("Saved")
-    refresh()
+  if (loading) {
+    return (
+      <section className="py-24 text-center text-gray-400">
+        Loading gallery...
+      </section>
+    )
   }
 
-  async function toggleFeatured() {
-    const { error } = await supabase
-      .from("gallery_images")
-      .update({ featured: !image.featured })
-      .eq("id", image.id)
-
-    if (error) return notify("Error")
-    notify("Updated")
-    refresh()
-  }
-
-  async function deleteImage() {
-    const { error } = await supabase
-      .from("gallery_images")
-      .delete()
-      .eq("id", image.id)
-
-    if (error) return notify("Failed")
-    notify("Deleted")
-    setConfirmDelete(false)
-    refresh()
+  if (images.length === 0) {
+    return (
+      <section className="py-24 text-center text-gray-400">
+        No gallery images yet 📸
+      </section>
+    )
   }
 
   return (
-    <>
-      {/* CARD */}
-      <div className="bg-[#14102a] border border-[#2a2f45] rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300">
+    <section className="bg-gradient-to-b from-[#1a1333] to-[#0b0f1a] py-24 px-6 text-white">
 
-        {/* IMAGE */}
-        <div
-          onClick={() => setPreviewIndex(index)}
-          className="relative cursor-pointer group"
-        >
-          <img
-            src={image.image_url}
-            className="w-full aspect-[4/3] object-cover"
-          />
+      <div className="max-w-6xl mx-auto">
 
-          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition flex items-center justify-center opacity-0 group-hover:opacity-100 text-white text-sm">
-            View
-          </div>
+        <h2 className="text-3xl font-bold text-yellow-400 text-center">
+          📸 Gallery
+        </h2>
+
+        <p className="text-center text-gray-400 mt-2 mb-12">
+          A collection of memorable moments from the journey.
+        </p>
+
+        {/* Masonry Grid */}
+        <div className="columns-1 sm:columns-2 md:columns-3 gap-6 space-y-6">
+
+          {images.map((img, i) => (
+
+            <div
+              key={img.id}
+              className="relative group cursor-pointer break-inside-avoid overflow-hidden rounded-xl border border-[#2a2f45]"
+              onClick={() => setIndex(i)}
+            >
+
+              <img
+                src={img.image_url}
+                alt={img.caption || "Gallery image"}
+                loading="lazy"
+                className="w-full object-cover transition duration-500 group-hover:scale-110"
+              />
+
+              {img.caption && (
+                <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-sm p-3 opacity-0 group-hover:opacity-100 transition">
+                  {img.caption}
+                </div>
+              )}
+
+            </div>
+
+          ))}
+
         </div>
 
-        {/* CONTENT */}
-        <div className="p-4 space-y-3">
-
-          {notification && (
-            <div className="text-xs text-green-400">
-              {notification}
-            </div>
-          )}
-
-          <input
-            value={caption}
-            onChange={(e)=>setCaption(e.target.value)}
-            className="w-full p-2 bg-[#0f0b1f] text-white rounded text-sm"
-          />
-
-          <button
-            onClick={updateCaption}
-            className="text-xs text-green-400"
-          >
-            Save
-          </button>
-
-          <div className="flex justify-between text-sm pt-1">
-
-            <button
-              onClick={toggleFeatured}
-              className="text-yellow-400"
-            >
-              {image.featured ? "⭐" : "☆"}
-            </button>
-
-            <button
-              onClick={()=>setConfirmDelete(true)}
-              className="text-red-400"
-            >
-              Delete
-            </button>
-
-          </div>
-
-          {confirmDelete && (
-            <div className="text-xs flex justify-between mt-2">
-              <span>Delete?</span>
-              <div className="flex gap-3">
-                <button onClick={deleteImage} className="text-red-400">Yes</button>
-                <button onClick={()=>setConfirmDelete(false)}>No</button>
-              </div>
-            </div>
-          )}
-
-        </div>
       </div>
 
-      {/* LIGHTBOX PREVIEW (same as gallery) */}
+      {/* Fullscreen Viewer */}
       <Lightbox
-        open={previewIndex >= 0}
-        index={previewIndex}
-        close={() => setPreviewIndex(-1)}
+        open={index >= 0}
+        index={index}
+        close={() => setIndex(-1)}
         slides={images.map((img) => ({
           src: img.image_url,
           description: img.caption || ""
         }))}
       />
-    </>
+
+    </section>
   )
-}
+  }
